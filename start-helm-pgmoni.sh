@@ -2,10 +2,14 @@
 set -e
 
 # set of environment variables
-export NGINX_NAMESPACE=ingress-nginx-2
-export CLUSTER=PROD
-export HTTPPORT=8080
-export GRAFANA_PASS=operator
+# NGINX variable set
+export NGINXNAMESPACE=ingress-nginx
+export CLUSTER=production
+export HTTPPORT=80
+# PROMETHEUS variable set
+export PROMETHEUSNAMESPACE=monitoring
+export GRAFANAPASS=operator123
+
 
 # remove existing cluster
 if [[ ! -z $(k3d cluster list | grep "^${CLUSTER}") ]]; then
@@ -36,19 +40,19 @@ rm /tmp/k3d-config.yaml
 
 echo "==== running helm for ingress-nginx"
 
-kubectl create namespace ${NGINX_NAMESPACE}
-helm install ingress-nginx ./ingress/ingress-nginx/ --set namespaceOverride="${NGINX_NAMESPACE}"
+kubectl create namespace ${NGINXNAMESPACE}
+helm install ingress-nginx ./ingress/nginx/ --set namespaceOverride="${NGINXNAMESPACE}"
 
 echo 
 echo "---- waiting for ingress-nginx controller deployment"
-kubectl rollout status deployment.apps ingress-nginx-controller -n ${NGINX_NAMESPACE} --request-timeout 5m
-kubectl rollout status daemonset.apps svclb-ingress-nginx-controller -n ${NGINX_NAMESPACE} --request-timeout 5m
+kubectl rollout status deployment.apps ingress-nginx-controller -n ${NGINXNAMESPACE} --request-timeout 5m
+kubectl rollout status daemonset.apps svclb-ingress-nginx-controller -n ${NGINXNAMESPACE} --request-timeout 5m
 
 echo
 echo "---- looking for IP of ingress-nginx controller"
 i=0
 while [ true ]; do
-    loadbalancerip=$(kubectl get svc ingress-nginx-controller --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}" -n ${NGINX_NAMESPACE})
+    loadbalancerip=$(kubectl get svc ingress-nginx-controller --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}" -n ${NGINXNAMESPACE})
     [ ! -z "${loadbalancerip}" ] && break
     echo -n "."
     x=$(( ${x} + 2 ))
@@ -65,3 +69,17 @@ kubectl get all -A
 
 # validation of the ingress installation
 # kubectl get svc -A | grep traefik
+
+echo "==== Information of ingress-nginx-controller in the namespace ${NGINXNAMESPACE}"
+NGINXCONTROLLERPOD=$(kubectl get pods -l app.kubernetes.io/name=ingress-nginx -o jsonpath='{.items[0].metadata.name}' -n ${NGINXNAMESPACE})
+kubectl exec -it ${NGINXCONTROLLERPOD} -n ${NGINXNAMESPACE} -- /nginx-ingress-controller --version
+
+echo
+echo "==== Installation of prometheus-community stack"
+kubectl create namespace ${PROMETHEUSNAMESPACE}
+
+cat prometheus-stack/template-prometheus-stack-values.yaml | envsubst | helm install prometheus ./prometheus-stack/kube-prometheus-stack -n ${PROMETHEUSNAMESPACE} --values -
+
+kubectl rollout status deployment.apps prometheus-grafana -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
+kubectl rollout status deployment.apps prometheus-kube-state-metrics -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
+kubectl rollout status deployment.apps prometheus-kube-prometheus-operator -n ${PROMETHEUSNAMESPACE} --request-timeout 5m

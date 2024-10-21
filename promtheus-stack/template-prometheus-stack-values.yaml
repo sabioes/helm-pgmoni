@@ -1,9 +1,0 @@
-grafana:
-  adminPassword: ${GRAFANA_PASS}
-  defaultDashboardsTimezone: Europe/Berlin
-  ingress:
-    enable: true
-    hosts:
-      - localhost
-    path: /
-    ingressClassName: nginx
