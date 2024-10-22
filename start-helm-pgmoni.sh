@@ -83,3 +83,4 @@ cat prometheus-stack/template-prometheus-stack-values.yaml | envsubst | helm ins
 kubectl rollout status deployment.apps prometheus-grafana -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
 kubectl rollout status deployment.apps prometheus-kube-state-metrics -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
 kubectl rollout status deployment.apps prometheus-kube-prometheus-operator -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
+
