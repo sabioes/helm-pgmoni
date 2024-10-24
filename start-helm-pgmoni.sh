@@ -9,6 +9,9 @@ export HTTPPORT=80
 # PROMETHEUS variable set
 export PROMETHEUSNAMESPACE=monitoring
 export GRAFANAPASS=operator123
+# POSTGRESQL variable set
+export POSTGRESQLNAMESPACE=postgres
+export POSTGRESPASSWORD=""
 
 
 # remove existing cluster
@@ -84,3 +87,12 @@ kubectl rollout status deployment.apps prometheus-grafana -n ${PROMETHEUSNAMESPA
 kubectl rollout status deployment.apps prometheus-kube-state-metrics -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
 kubectl rollout status deployment.apps prometheus-kube-prometheus-operator -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
 
+echo
+echo "==== Installation of postgresql"
+kubectl create namespace ${POSTGRESQLNAMESPACE}
+
+cat database/template-postgresql.yaml | envsubst | helm install postgresql ./database/postgresql -n ${POSTGRESQLNAMESPACE} --values - 
+POSTGRESPASSWORD=$(kubectl get secret --namespace postgres postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+cat database/template-prometheus-postgres-exporter.yaml | envsubst | helm install prometheus-postgres-exporter ./database/prometheus-postgres-exporter -n ${POSTGRESQLNAMESPACE} --values -
+
+#kubectl rollouts TODO

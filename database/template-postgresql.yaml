@@ -1,0 +1,12 @@
+containerPorts:
+  postgresql: 5432
+serviceMonitor:
+  enabled: true
+  #namespace: monitoring      # Namespace where the ServiceMonitor will be deployed
+  labels:                    # Additional labels for the ServiceMonitor
+    release: prometheus
+  interval: 30s              # Scrape interval
+  scrapeTimeout: 10s         # Scrape timeout
+  selector:
+    matchLabels:             # Labels for selecting the Service to be monitored
+      app: postgresql

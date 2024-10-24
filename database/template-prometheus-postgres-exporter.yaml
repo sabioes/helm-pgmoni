@@ -1,0 +1,19 @@
+config: 
+  datasource:
+    # Specify one of both datasource or datasourceSecret
+    host: 'postgresql.postgres.svc.cluster.local'
+    user: postgres
+    password: ${POSTGRESPASSWORD}
+    port: "5432"
+    database: 'postgres'
+    sslmode: disable
+    extraParams: ''
+  # possible values debug, info, warn, error, fatal
+  logLevel: "debug"
+service:
+  type: ClusterIP
+  port: 9187
+  targetPort: 9187
+#extraEnvs:
+#  - name: DATA_SOURCE_NAME
+#    value: "postgresql://postgres:${POSTGRESPASSWORD}@postgresql:5432/postgres?sslmode=disable"

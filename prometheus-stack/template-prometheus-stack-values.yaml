@@ -13,4 +13,11 @@ grafana:
     path: /
     pathType: Prefix
     ingressClassName: nginx
-  
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+      - job_name: 'postgres_exporter'
+        scrape_interval: 10s
+        static_configs:
+          - targets: ['prometheus-postgres-exporter.postgres.svc.cluster.local:9187']
+        
