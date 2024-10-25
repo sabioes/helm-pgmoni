@@ -1,0 +1,4 @@
+Flask==1.0.3
+gunicorn==19.9.0
+jinja2==3.0.3
+itsdangerous==1.1.0
