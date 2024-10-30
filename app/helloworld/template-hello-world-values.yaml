@@ -1,0 +1,9 @@
+fullnameOverride: "hello-world"
+ingress:
+  ingressClassName: nginx
+  enabled: true
+  hosts:
+    - host: helloworld.localhost
+      paths: 
+        - path: /
+          
