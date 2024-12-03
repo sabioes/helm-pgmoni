@@ -108,6 +108,6 @@ cat database/template-prometheus-postgres-exporter.yaml | envsubst | helm instal
 
 echo
 echo "==== Installation of database tools"
-cat app/templat-pgimporter-values.yaml | envsubst | helm install pgimporter ./app/pgimporter -n ${POSTGRESQLNAMESPACE} --values -
+cat app/template-pgimporter-values.yaml | envsubst | helm install pgimporter ./app/pgimporter -n ${POSTGRESQLNAMESPACE} --values -
 
 #kubectl rollouts TODO

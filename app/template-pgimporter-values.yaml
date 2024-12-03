@@ -1,12 +1,9 @@
 imagePullSecrets: 
-  - pgimporter-dockerhub-secret
+  - name: pgimporter-dockerhub-secret
 dockerHubCredentials: ${DOCKERCONFIGJSON}
 ingress:
   enabled: true
   className: "nginx"
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
   hosts:
     - host: pgimporter.localhost
       paths:
