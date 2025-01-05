@@ -35,7 +35,7 @@ echo "==== Docker login"
 #read -p "Enter Docker username: " username
 read -sp "Enter Docker password: " password
 echo "$password" | docker login --username "${REPOUSERNAME}" --password-stdin "${REPOHOSTNAME}"
-[ $? -eq 0 ] && echo "Login successful to $registry!" && DOCKERCONFIGJSON=$(cat ~/.docker/config.json | base64) || echo "Login failed!"
+[ $? -eq 0 ] && echo "Login successful to $registry!" && DOCKERCONFIGJSON=$(cat ~/.docker/config.json | base64 -w 0) || echo "Login failed!"
 
 
 echo

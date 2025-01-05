@@ -1,6 +1,6 @@
 imagePullSecrets: 
   - name: pgimporter-dockerhub-secret
-dockerHubCredentials: ${DOCKERCONFIGJSON}
+dockerHubCredentials: "${DOCKERCONFIGJSON}"
 ingress:
   enabled: true
   className: "nginx"
