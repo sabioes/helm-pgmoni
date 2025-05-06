@@ -5,7 +5,7 @@ metadata:
   name: ${CLUSTER}
 servers: 3 # same as `--servers 3`
 agents: 1 # same as `--agents 1`
-image: rancher/k3s:v1.22.2-k3s2
+image: rancher/k3s:v1.32.4-k3s1
 ports:
   - port: ${HTTPPORT}:80
     nodeFilters:
@@ -18,7 +18,7 @@ options:
     disableLoadbalancer: false
   k3s:
     extraArgs:
-      - arg: --no-deploy=traefik
+      - arg: --disable=traefik
         nodeFilters:
           - server:*
   kubeconfig:
