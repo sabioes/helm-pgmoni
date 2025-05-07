@@ -1,0 +1,5 @@
+ingress:
+  enabled: 
+  ingressClassName: "nginx"
+  path: "/"
+  host: "kafka-ui.localhost"
