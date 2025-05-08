@@ -3,13 +3,19 @@ apiVersion: k3d.io/v1alpha5
 kind: Simple
 metadata:
   name: ${CLUSTER}
-servers: 3 # same as `--servers 3`
-agents: 1 # same as `--agents 1`
+servers: 3
+agents: 1
 image: rancher/k3s:v1.32.4-k3s1
+volumes: # 
+  - volume: /tmp/zscaler_root_ca.crt:/etc/ssl/certs/zscaler_root_ca.crt
+    nodeFilters:
+      - server:*
+      - agent:*
+      - loadbalancer:*
 ports:
   - port: ${HTTPPORT}:80
     nodeFilters:
-      - loadbalancer
+      - loadbalancer:*
 options:
   k3d:
     wait: true
@@ -18,7 +24,7 @@ options:
     disableLoadbalancer: false
   k3s:
     extraArgs:
-      - arg: --disable=traefik
+      - arg: "--disable=traefik"
         nodeFilters:
           - server:*
   kubeconfig:
