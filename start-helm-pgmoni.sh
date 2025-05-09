@@ -60,12 +60,6 @@ echo
 echo "---- waiting for ingress-nginx controller deployment"
 kubectl rollout status deployment.apps ingress-nginx-controller -n ${NGINXNAMESPACE} --request-timeout 5m
 
-DS_NAME=$(kubectl get daemonsets -n "${NGINXNAMESPACE}" \
-  --no-headers -o custom-columns=":metadata.name" \
-  | grep "^svclb-ingress-nginx-controller")
-
-kubectl rollout status daemonset.apps "$DS_NAME" -n ${NGINXNAMESPACE} --request-timeout 5m
-
 echo
 echo "---- looking for IP of ingress-nginx controller"
 i=0
@@ -82,32 +76,33 @@ echo
 echo
 echo "==== show info about the cluster ${CLUSTER}"
 kubectl cluster-info
+
 echo
 kubectl get all -A
 
 # validation of the ingress installation
-kubectl get svc -A | grep traefik
-
+#kubectl get svc -A | grep traefik
 echo "==== Information of ingress-nginx-controller in the namespace ${NGINXNAMESPACE}"
 NGINXCONTROLLERPOD=$(kubectl get pods -l app.kubernetes.io/name=ingress-nginx -o jsonpath='{.items[0].metadata.name}' -n ${NGINXNAMESPACE})
 kubectl exec -it ${NGINXCONTROLLERPOD} -n ${NGINXNAMESPACE} -- /nginx-ingress-controller --version
 
-#echo
-#echo "==== Installation of prometheus-community stack"
-#kubectl create namespace ${PROMETHEUSNAMESPACE}
-#
-#cat prometheus-stack/template-prometheus-stack-values.yaml | envsubst | helm install prometheus ./prometheus-stack/kube-prometheus-stack -n ${PROMETHEUSNAMESPACE} --values -
-#
-#kubectl rollout status deployment.apps prometheus-grafana -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
-#kubectl rollout status deployment.apps prometheus-kube-state-metrics -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
-#kubectl rollout status deployment.apps prometheus-kube-prometheus-operator -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
-#echo
-#echo "==== Installation of kafka"
-#kubectl create namespace ${KAFKANAMESPACE}
-#cat kafka/template-kafka-values.yaml | envsubst | helm install kafka ./kafka/kafka -n ${KAFKANAMESPACE} --values -
+echo
+echo "==== Installation of prometheus-community stack"
+kubectl create namespace ${PROMETHEUSNAMESPACE}
+
+cat prometheus-stack/template-prometheus-stack-values.yaml | envsubst | helm install prometheus ./prometheus-stack/kube-prometheus-stack -n ${PROMETHEUSNAMESPACE} --values -
+
+kubectl rollout status deployment.apps prometheus-grafana -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
+kubectl rollout status deployment.apps prometheus-kube-state-metrics -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
+kubectl rollout status deployment.apps prometheus-kube-prometheus-operator -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
+
+echo
+echo "==== Installation of kafka"
+kubectl create namespace ${KAFKANAMESPACE}
+cat kafka/template-kafka-values.yaml | envsubst | helm install kafka ./kafka/kafka -n ${KAFKANAMESPACE} --values -
 #kubectl rollout status deployment.apps kafka -n ${PROMETHEUSNAMESPACE} --request-timeout 5m
-#
-#cat kafka/template-kafka-ui-values.yaml | envsubst | helm install kafka-ui ./kafka/kafka-ui -n ${KAFKANAMESPACE} --values -
+
+cat kafka/template-kafka-ui-values.yaml | envsubst | helm install kafka-ui ./kafka/kafka-ui -n ${KAFKANAMESPACE} --values -
 
 #echo
 #echo "==== Installation of postgresql"
