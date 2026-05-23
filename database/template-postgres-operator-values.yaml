@@ -1,0 +1,85 @@
+# Zalando Postgres Operator – values for k3d/k3s local testing
+# Chart: postgres-operator-charts/postgres-operator  v1.15.1
+# Docs: https://github.com/zalando/postgres-operator/blob/master/charts/postgres-operator/values.yaml
+
+image:
+  registry: ghcr.io
+  repository: zalando/postgres-operator
+  tag: v1.15.1
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 500Mi
+  requests:
+    cpu: 100m
+    memory: 250Mi
+
+configGeneral:
+  # Spilo image (PostgreSQL 18)
+  docker_image: ghcr.io/zalando/spilo-18:4.1-p1
+  # watch all namespaces
+  watched_namespace: "*"
+  enable_crd_registration: true
+  enable_lazy_spilo_upgrade: false
+  enable_shm_volume: true
+  min_instances: -1
+  max_instances: -1
+  resync_period: 30m
+  repair_period: 5m
+  workers: 4
+
+configKubernetes:
+  cluster_domain: cluster.local
+  cluster_labels:
+    application: spilo
+  cluster_name_label: cluster-name
+  # spread primary and replicas across nodes (preferred – non-blocking on small clusters)
+  enable_pod_antiaffinity: true
+  pod_antiaffinity_preferred_during_scheduling: true
+  pod_antiaffinity_topology_key: "kubernetes.io/hostname"
+  enable_pod_disruption_budget: true
+  enable_init_containers: true
+  enable_sidecars: true
+  # retain PVCs on scale-down / deletion for data safety
+  persistent_volume_claim_retention_policy:
+    when_deleted: retain
+    when_scaled: retain
+  pod_role_label: spilo-role
+  pod_terminate_grace_period: 5m
+  secret_name_template: "{username}.{cluster}.credentials.{tprkind}.{tprgroup}"
+
+configPostgresPodResources:
+  # lightweight defaults for local k3d testing
+  default_cpu_limit: "1"
+  default_cpu_request: 100m
+  default_memory_limit: 500Mi
+  default_memory_request: 100Mi
+
+configDebug:
+  debug_logging: true
+  enable_database_access: true
+
+configLoadBalancer:
+  enable_master_load_balancer: false
+  enable_replica_load_balancer: false
+
+# Teams API disabled for local testing
+configTeams:
+  enable_teams_api: false
+
+# Logical backups disabled for local testing
+configLogicalBackup:
+  logical_backup_provider: "s3"
+  logical_backup_s3_bucket: ""
+
+serviceAccount:
+  create: true
+
+podServiceAccount:
+  name: "postgres-pod"
+
+podPriorityClassName:
+  create: true
+  priority: 1000000

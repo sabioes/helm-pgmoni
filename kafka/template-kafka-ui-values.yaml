@@ -2,3 +2,9 @@ ingress:
   enabled: true
   ingressClassName: nginx
   host: kafkaui.localhost
+
+env:
+  - name: KAFKA_CLUSTERS_0_NAME
+    value: "local-cluster"
+  - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+    value: "kafka.kafka.svc.cluster.local:9092"
